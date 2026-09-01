@@ -11,7 +11,7 @@ app.use(cors({
 }))
 const authRoutes=require("./routes/auth.routes.js");
 const foodRoutes=require("./routes/food.routes.js");
-
+const foodPartnerRoutes=require("./routes/food-partner.routes.js")
 app.get("/",(req,res)=>{
     res.send("hello world!!")
 })
@@ -20,4 +20,5 @@ app.use('/api/auth',authRoutes);
 
 app.use('/api/food',foodRoutes);
 
+app.use('/api/food-partner',foodPartnerRoutes);
 module.exports=app;
