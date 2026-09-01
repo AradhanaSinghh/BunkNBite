@@ -19,4 +19,5 @@ app.get("/",(req,res)=>{
 app.use('/api/auth',authRoutes);
 
 app.use('/api/food',foodRoutes);
+
 module.exports=app;
