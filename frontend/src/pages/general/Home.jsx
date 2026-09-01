@@ -1,146 +1,56 @@
-import React, { useEffect, useRef, useState } from 'react'
-
-import '../../styles/reels.css'
-
-import { useNavigate ,Link} from 'react-router-dom'
-
-import axios from 'axios'
-
+import React, { useEffect, useState } from 'react'
+import axios from 'axios';
+import "../../styles/reels.css"
+import ReelFeed from '../../components/ReelFeed.jsx';
 const Home = () => {
-
-    const [videos, setVideos] = useState([])
-
-    const videoRefs = useRef(new Map())
-
-    const containerRef = useRef(null)
+    const [ videos, setVideos ] = useState([])
+    // Autoplay behavior is handled inside ReelFeed
 
     useEffect(() => {
-
-        const observer = new IntersectionObserver(
-
-            (entries) => {
-
-                entries.forEach((entry) => {
-
-                    const video = entry.target
-
-                    if (!(video instanceof HTMLVideoElement)) return
-
-                    if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
-
-                        video.play().catch(() => {
-                            // ignore autoplay errors
-                        })
-
-                    } else {
-
-                        video.pause()
-
-                    }
-
-                })
-
-            },
-
-            {
-                threshold: [0.6]
-            }
-
-        )
-
-        videoRefs.current.forEach((video) => {
-            observer.observe(video)
-        })
-
-        return () => {
-            observer.disconnect()
-        }
-
-    }, [videos])
-
-
-    useEffect(() => {
-
-        axios.get('http://localhost:3000/api/food',{withCredentials:true})
+        axios.get("http://localhost:3000/api/food", { withCredentials: true })
             .then(response => {
 
+                console.log(response.data);
+
                 setVideos(response.data.foodItems)
-
             })
-
+            .catch(() => { /* noop: optionally handle error */ })
     }, [])
 
+    // Using local refs within ReelFeed; keeping map here for dependency parity if needed
 
-    const setVideoRef = (id) => (el) => {
+    async function likeVideo(item) {
 
-        if (!el) {
-            videoRefs.current.delete(id)
-            return
+        const response = await axios.post("http://localhost:3000/api/food/like", { foodId: item._id }, {withCredentials: true})
+
+        if(response.data.like){
+            console.log("Video liked");
+            setVideos((prev) => prev.map((v) => v._id === item._id ? { ...v, likeCount: v.likeCount + 1 } : v))
+        }else{
+            console.log("Video unliked");
+            setVideos((prev) => prev.map((v) => v._id === item._id ? { ...v, likeCount: v.likeCount - 1 } : v))
         }
-
-        videoRefs.current.set(id, el)
-
+        
     }
 
+    async function saveVideo(item) {
+        const response = await axios.post("http://localhost:3000/api/food/save", { foodId: item._id }, { withCredentials: true })
+        
+        if(response.data.save){
+            setVideos((prev) => prev.map((v) => v._id === item._id ? { ...v, savesCount: v.savesCount + 1 } : v))
+        }else{
+            setVideos((prev) => prev.map((v) => v._id === item._id ? { ...v, savesCount: v.savesCount - 1 } : v))
+        }
+    }
 
     return (
-
-        <div ref={containerRef} className='reels-page'>
-
-            <div className='reels-feed' role='list'>
-
-                {videos.map((item) => (
-
-                    <section key={item._id} className='reel' role='listitem'>
-
-                        <video
-                            ref={setVideoRef(item._id)}
-                            className='reel-video'
-                            src={item.video}
-                            muted
-                            playsInline
-                            loop
-                            preload='metadata'
-                        />
-
-                        <div className='reel-overlay'>
-
-                            <div
-                                className='reel-overlay-gradient'
-                                aria-hidden="true"
-                            />
-
-                            <div className='reel-content'>
-
-                                <p
-                                    className='reel-description'
-                                    title={item.description}
-                                >
-                                    {item.description}
-                                </p>
-
-                                <Link
-                                    className='reel-btn'
-                                    to={"/food-partner/"+item.foodPartner}
-                                    aria-label='Visit store'
-                                >
-                                    Video
-                                </Link>
-
-                            </div>
-
-                        </div>
-
-                    </section>
-
-                ))}
-
-            </div>
-
-        </div>
-
+        <ReelFeed
+            items={videos}
+            onLike={likeVideo}
+            onSave={saveVideo}
+            emptyMessage="No videos available."
+        />
     )
-
 }
 
-export default Home;
+export default Home

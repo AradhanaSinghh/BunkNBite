@@ -20,10 +20,10 @@ const Profile = () => {
                 <div className="profile-meta">
 
                     <img
-                        className="profile-avatar"
-                        src="https://images.unsplash.com/photo-1754653099086-3bddb9346d37?w=500&auto=format&fit=crop&q=60"
-                        alt=""
-                    />
+    className="profile-avatar"
+    src="https://images.rawpixel.com/image_social_landscape/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDI0LTAxL3Jhd3BpeGVsb2ZmaWNlMTRfaGFwcHlfbWFsZV9pbmRpYW5fY2hlZl93aXRoX2Nyb3NzZWRfYXJtc193ZWFyaV8yNDk4NTNiMi0wZTE2LTRhYjMtYmIwMy1hOWViMjVjNzRmMWZfMS5qcGc.jpg"
+    alt="Chef"
+/>
 
                     <div className="profile-info">
                         <h1
@@ -77,7 +77,7 @@ const Profile = () => {
             >
                 {videos.map((v) => (
                     <div
-                        key={v.id}
+                        key={v._id}
                         className="profile-grid-item"
                     >
                         <video
